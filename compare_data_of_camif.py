@@ -201,9 +201,9 @@ if __name__ == "__main__" :
         if len(sys.argv) < 3 :
             print "the argument number is not correct!"
             exit(1)
-
+        //打开一个文件
         in_file = open("camif8.hex", 'rb')
-
+        //调用函数
         generate_yuv_list(in_file, y_list, u_list, v_list)
         #print y_list
         #print u_list

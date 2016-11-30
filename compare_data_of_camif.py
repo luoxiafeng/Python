@@ -8,6 +8,8 @@ v_list = []
 frame_size = 1920*6
 LINE = 6
 COL = 1920
+
+#把yuv422按照3个平面存放
 def store_yuv422p_to_file(file, y_offset, u_offset, v_offset):
 
     for pix in y_list[y_offset: y_offset + frame_size] :
@@ -29,6 +31,7 @@ def store_yuv422p_to_file(file, y_offset, u_offset, v_offset):
         file.write(data)
     file.close()
 
+#semi-plane的UV数据在一个通道中，数据是交错在一起的。
 def store_yuv422sp_to_file(file, y_offset, u_offset, v_offset):
     for pix in y_list[y_offset: y_offset + frame_size] :
         #print pix, "pix"
@@ -48,23 +51,25 @@ def store_yuv422sp_to_file(file, y_offset, u_offset, v_offset):
         pos_tag = pos_tag +1
     file.close()
 
+#interlaced模式是将YCbYCr放在一个channel中。
 def store_yuv422interlaced_to_file(file, y_offset, u_offset, v_offset):
     y_pos = y_offset
     v_pos = v_offset
 
     for pix in u_list[u_offset: u_offset + frame_size/2] :
+        #Y
         tmp = y_list[y_pos]
         data = struct.pack('B', int(tmp, 16))
         file.write(data)
-        #print pix, "pix"
+        #Cb
         data = struct.pack('B', int(pix, 16))
         #print data, "data"
         file.write(data)
-
+        #Y
         tmp = y_list[y_pos+1]
         data = struct.pack('B', int(tmp, 16))
         file.write(data)
-
+        #Cr
         tmp = v_list[v_pos]
         data= struct.pack('B', int(tmp, 16))
         file.write(data)
@@ -73,6 +78,7 @@ def store_yuv422interlaced_to_file(file, y_offset, u_offset, v_offset):
         v_pos = v_pos + 1
     file.close()
 
+#将yuv420sp存入文件，sp的时候，表示UV在一个通道中交叉存放
 def store_yuv420sp_to_file(file, y_offset, u_offset, v_offset):
 
     #first store all Y
@@ -149,13 +155,13 @@ def store_yuv420sp_to_file_hsub_and_vsub(file, y_offset, u_offset, v_offset):
         tmp_pos = sub_vpos + 1
 
     file.close()
-
+#原图一定是一个yuv422格式的数据，offset表示第几帧数据
 def generate_frame_data(offset, fmt, store):
-
+    #由于现在已经把yuv的数据分别放在三个数组中。
     y_offset = frame_size*(offset - 1)
     u_offset = frame_size*(offset - 1)/2
     v_offset = frame_size*(offset -1)/2
-
+    #yuv422sp_frame1
     name ="%s%s_%s%d" % (fmt, store, "frame", offset)
     file = open(name, "wb")
 
@@ -169,21 +175,22 @@ def generate_frame_data(offset, fmt, store):
         store_yuv420sp_to_file(file, y_offset, u_offset, v_offset)
 
 def generate_yuv_list(fobj, y_list, u_list, v_list) :
-
+   #通过调用文件对象的函数，从文件中读取所有的行。
    flines = fobj.readlines()
    count = 0
+   #循环遍历所有的行
    for eachLine in flines:
        eachLine = eachLine[0:-1]
        count = count + 1
-       if (count % 2 != 0) : #is Y
+       if (count % 2 != 0) : #is Y//如果是奇数
 
             y_list.append(eachLine)
 
-       elif (count % 4 == 0): # is cR
+       elif (count % 4 == 0): # is cR //如果能被4整除
             #print 'CR',  eachLine,
             v_list.append(eachLine)
 
-       else :
+       else ://如果能被2整除
             #print "%s" % 'CB', type(data), data,
             u_list.append(eachLine)
 
@@ -197,13 +204,13 @@ if __name__ == "__main__" :
         print "example:"
         print "./compare_data_of_camif.py 1 yuv422 sp"
     else :
-
-        if len(sys.argv) < 3 :
+        
+        if len(sys.argv) < 4 :
             print "the argument number is not correct!"
             exit(1)
-
+        #打开一个文件,而且这个文件也不对
         in_file = open("camif8.hex", 'rb')
-
+        #调用函数，从文件中读取三个分量的数据
         generate_yuv_list(in_file, y_list, u_list, v_list)
         #print y_list
         #print u_list

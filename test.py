@@ -91,6 +91,9 @@ def base_rules_list():
         print i
     list2=[i*i for i in range(0,5)]
     print list2
+    list3=[None]
+    for i in list3:
+        print "list empty can also run once!"
     pass
 
 if __name__=="__main__":

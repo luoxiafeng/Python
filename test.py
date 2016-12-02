@@ -80,6 +80,19 @@ def module_os_use1():
     os.system("pwd");
     pass
 
+'''
+(1)列表，大杂烩，不同类型的都可以
+(2)list1=["abc",123,"edf"]
+(3)list2属于比较高级的列表使用方法
+'''
+def base_rules_list():
+    list1=["abc","123",456]
+    for i in list1:
+        print i
+    list2=[i*i for i in range(0,5)]
+    print list2
+    pass
+
 if __name__=="__main__":
     #base_rules_1()
     #base_rules_2()
@@ -93,5 +106,7 @@ if __name__=="__main__":
     print "========================"
     #base_rules_6();
     print "========================"
-    module_os_use1()
+    #module_os_use1()
+    print "========================"
+    base_rules_list()
 
